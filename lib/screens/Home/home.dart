@@ -1,12 +1,15 @@
 import 'dart:async';
+import 'dart:convert' as convert;
 import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_config/flutter_config.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_cluster_manager/google_maps_cluster_manager.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:http/http.dart';
 import 'package:mypointfrontend/widgets/buttons.dart';
 import 'package:mypointfrontend/widgets/sidemenu.dart';
 import 'package:provider/provider.dart';
@@ -42,8 +45,6 @@ class MapSampleState extends State<MapSample> {
       args = args;
     } else {
       args = ModalRoute.of(context)!.settings.arguments as List<Facility>;
-      print(args.length);
-      print(args.length);
       if (args.isNotEmpty) {
         List<Facility> clean = [];
         _manager.setItems(clean);
@@ -96,14 +97,35 @@ class MapSampleState extends State<MapSample> {
         return Marker(
           markerId: MarkerId(cluster.getId()),
           position: cluster.location,
-          onTap: () {
+          onTap: () async {
             if (!cluster.isMultiple) {
+              // request agora
+              // para um endpoint para retirar todos os proximos buses
+              // request para api/busstop/<id>
               if (cluster.items.first.asset_type == 'Bus stop') {
-                Navigator.pushNamed(context, '/feedback/placeholder', arguments: {
-                  'Facility': cluster.items.first,
-                  'lat': lat,
-                  'long': long,
-                });
+                Response response = await get(
+                  Uri.parse('http://${FlutterConfig.get('API_ADDRESS')}/api/busstop/information/' +
+                      cluster.items.first.asset_id),
+                  headers: <String, String>{
+                    'Content-Type': 'application/json; charset=UTF-8',
+                  },
+                );
+                var jsonData = convert.jsonDecode(response.body);
+                print(jsonData.runtimeType);
+                if (response.statusCode == 200) {
+                  Navigator.pushNamed(context, '/feedback/placeholder', arguments: {
+                    'Facility': cluster.items.first,
+                    'lat': lat,
+                    'long': long,
+                    'times': jsonData
+                  });
+                } else {
+                  Navigator.pushNamed(context, '/feedback/placeholder', arguments: {
+                    'Facility': cluster.items.first,
+                    'lat': lat,
+                    'long': long,
+                  });
+                }
               }
               if (cluster.items.first.asset_type == 'Car Park') {
                 Navigator.pushNamed(context, '/feedback/carpark', arguments: {
@@ -113,7 +135,7 @@ class MapSampleState extends State<MapSample> {
                 });
               }
               if (cluster.items.first.asset_type == 'Mobility Station') {
-                Navigator.pushNamed(context, '/feedback', arguments: {
+                Navigator.pushNamed(context, '/feedback/placeholder', arguments: {
                   'Facility': cluster.items.first,
                   'lat': lat,
                   'long': long,
@@ -128,11 +150,13 @@ class MapSampleState extends State<MapSample> {
       };
 
   ClusterManager _initClusterManager() {
-    return ClusterManager<Facility>(args, _updateMarkers,
-        markerBuilder: _markerBuilder,
-        stopClusteringZoom: 16,
-        extraPercent: 0.5,
-        levels: [1, 4.25, 6.75, 8.25, 13.2, 15.8, 16.5, 17.5, 20.0]);
+    return ClusterManager<Facility>(
+      args,
+      _updateMarkers,
+      markerBuilder: _markerBuilder,
+      stopClusteringZoom: 16,
+      extraPercent: 0.5,
+    );
   }
 
   void _updateMarkers(Set<Marker> markers) {

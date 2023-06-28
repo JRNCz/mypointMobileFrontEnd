@@ -379,7 +379,7 @@ class AddCarParkButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Positioned(
         right: 10,
-        bottom: 180,
+        bottom: 115,
         child: Container(
           width: 64,
           height: 64,
@@ -421,8 +421,8 @@ class RefreshMapButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Positioned(
-        right: 10,
-        bottom: 100,
+        left: 10,
+        bottom: 40,
         child: Container(
           width: 64,
           height: 64,
@@ -505,7 +505,7 @@ Positioned ScanFacilityButton(BuildContext context, RenderMap local, List<Facili
 
   return Positioned(
       right: 10,
-      bottom: 20,
+      bottom: 40,
       child: Container(
         width: 64,
         height: 64,

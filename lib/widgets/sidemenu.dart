@@ -104,6 +104,7 @@ Widget menuUser(BuildContext context, ClusterManager<ClusterItem> manager, List<
             title: const Text('Account'),
             onTap: () async {
               var token = await context.read<User>().getAcessToken();
+              token ??= "";
               Response response = await get(
                   Uri.parse('http://${FlutterConfig.get('API_ADDRESS')}/api/client/account/'),
                   headers: {'Authorization': 'Bearer ' + token!});

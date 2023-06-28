@@ -17,7 +17,7 @@ class FeedbackScreen extends StatelessWidget {
     double long = mapContext['long'];
     String points = mapContext['points'];
     bool wasLoggedIn = mapContext['login'];
-    
+
     return Scaffold(
       body: Column(
         children: [

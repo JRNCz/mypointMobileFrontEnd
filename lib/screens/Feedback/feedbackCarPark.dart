@@ -30,6 +30,8 @@ class _AddCarParkScreenState extends State<AddCarParkScreen> {
     String formattedTime = now.toIso8601String();
 
     String? token = await context.read<User>().getAcessToken();
+    token ??= "";
+
     Response response = await post(
       Uri.parse('http://${FlutterConfig.get('API_ADDRESS')}/api/feedback/carpark'),
       headers: <String, String>{
@@ -301,6 +303,8 @@ class _AddCarParkScreenState extends State<AddCarParkScreen> {
                   String formattedTime = now.toIso8601String();
 
                   String? token = await context.read<User>().getAcessToken();
+                  token ??= "";
+
                   Response response = await post(
                     Uri.parse('http://${FlutterConfig.get('API_ADDRESS')}/api/feedback/carpark'),
                     headers: <String, String>{

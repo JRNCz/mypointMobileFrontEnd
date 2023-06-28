@@ -96,7 +96,7 @@ class _FeedSubCatScreenState extends State<FeedSubCatScreen> {
           minRating: 0,
           direction: Axis.horizontal,
           allowHalfRating: false,
-          itemCount: 5,
+          itemCount: 4,
           itemPadding: EdgeInsets.symmetric(horizontal: 4.0),
           itemBuilder: (context, _) => Icon(
             Icons.star,
@@ -194,6 +194,8 @@ class _FeedSubCatScreenState extends State<FeedSubCatScreen> {
                 String formattedTime = now.toIso8601String();
 
                 String? token = await context.read<User>().getAcessToken();
+                token ??= "";
+
                 Response response = await post(
                   Uri.parse('http://${FlutterConfig.get('API_ADDRESS')}/api/feedback/'),
                   headers: <String, String>{

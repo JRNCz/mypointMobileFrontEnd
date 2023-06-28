@@ -38,6 +38,7 @@ class _CarParkScreenState extends State<CarParkScreen> {
       DateTime now = DateTime.now().toUtc();
       String formattedTime = now.toIso8601String();
       String? token = await context.read<User>().getAcessToken();
+      token ??= "";
 
       Response response = await post(
         Uri.parse('http://${FlutterConfig.get('API_ADDRESS')}/api/feedback/carpark/validate'),
@@ -296,6 +297,8 @@ class _CarParkScreenState extends State<CarParkScreen> {
                   String formattedTime = now.toIso8601String();
 
                   String? token = await context.read<User>().getAcessToken();
+                  token ??= "";
+
                   Response response = await post(
                     Uri.parse(
                         'http://${FlutterConfig.get('API_ADDRESS')}/api/feedback/carpark/validate'),

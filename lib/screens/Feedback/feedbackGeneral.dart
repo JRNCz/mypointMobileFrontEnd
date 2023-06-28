@@ -60,6 +60,22 @@ class _FeedbackMainScreenState extends State<FeedbackMainScreen> {
     Facility f = m['Facility'];
     double user_lat = m['lat'];
     double user_log = m['long'];
+    List<dynamic> times = [];
+    bool setInformation = false;
+    int len = 0;
+
+    try {
+      times = m['times'];
+      setInformation = true;
+      len = times.length;
+    } catch (e) {
+      print('Facility has no information');
+      setInformation = false;
+      len = times.length;
+      if (times.length > 6) {
+        len = 6;
+      }
+    }
     double rating = 0;
     return Scaffold(
         body: Column(
@@ -85,6 +101,14 @@ class _FeedbackMainScreenState extends State<FeedbackMainScreen> {
           ],
         ),
         SizedBox(height: 20),
+        CategorySelected(
+            color: Colors.grey,
+            icon: Image.asset(
+              'assets/general.png',
+              width: 40,
+              height: 40,
+            )),
+        SizedBox(height: 20),
         SizedBox(
           height: 20,
         ),
@@ -104,7 +128,7 @@ class _FeedbackMainScreenState extends State<FeedbackMainScreen> {
           minRating: 0,
           direction: Axis.horizontal,
           allowHalfRating: false,
-          itemCount: 5,
+          itemCount: 4,
           itemPadding: EdgeInsets.symmetric(horizontal: 4.0),
           itemBuilder: (context, _) => Icon(
             Icons.star,
@@ -115,7 +139,7 @@ class _FeedbackMainScreenState extends State<FeedbackMainScreen> {
             rating = ratingnow;
           },
         ),
-        SizedBox(height: MediaQuery.of(context).size.height * 0.15),
+        SizedBox(height: 30),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -143,8 +167,9 @@ class _FeedbackMainScreenState extends State<FeedbackMainScreen> {
               onPressed: () async {
                 DateTime now = DateTime.now().toUtc();
                 String formattedTime = now.toIso8601String();
-
                 String? token = await context.read<User>().getAcessToken();
+                token ??= "";
+
                 Response response = await post(
                   Uri.parse('http://${FlutterConfig.get('API_ADDRESS')}/api/feedback/'),
                   headers: <String, String>{
@@ -157,7 +182,7 @@ class _FeedbackMainScreenState extends State<FeedbackMainScreen> {
                     "time_action": formattedTime,
                     "score": rating.toInt(),
                     "image_url": null,
-                    "text": '',
+                    "text": textComment,
                     "facility": f.asset_id,
                     "user_lat": user_lat,
                     "user_lon": user_log,
@@ -214,6 +239,38 @@ class _FeedbackMainScreenState extends State<FeedbackMainScreen> {
               ),
             ),
           ],
+        ),
+        SizedBox(height: 20),
+        Expanded(
+          child: ListView.builder(
+            scrollDirection: Axis.vertical,
+            shrinkWrap: true,
+            itemCount: len,
+            itemBuilder: (context, index) {
+              print(times[index]);
+              return Card(
+                elevation: 0.0, // Set elevation to 0.0 to remove shadows
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(0.0), // Customize border radius as needed
+                ),
+                margin: EdgeInsets.all(0.0), // Remove default card margin
+                color: Colors.transparent, // Set card color to transparent
+                child: ListTile(
+                  onTap: () {},
+                  leading: ClipRRect(
+                    borderRadius: BorderRadius.circular(8.0),
+                    child: Image.asset(
+                      'assets/bus.png',
+                      fit: BoxFit.cover, // Adjust the fit property as needed
+                    ),
+                  ),
+                  title: Text(times[index]['route_short_name'] + ' ' + times[index]['route_long_name']),
+                  isThreeLine: false,
+                  subtitle: Text(times[index]['arrival_time']),
+                ),
+              );
+            },
+          ),
         ),
       ],
     ));
